@@ -36,6 +36,9 @@ namespace XappyClient
         [Option('n', "name", HelpText = "Your build name. When omitted, your XAP file name is used")]
         public string BuildName { get; set; }
 
+        [Option('t', "timeout", HelpText = "Communications timeout in seconds. Defaults to 600.", DefaultValue = 600)]
+        public int Timeout { get; set; }
+
         public CommandLineOptions(string[] args, string helpHeading, string copyRightInformation = null)
         {
             this.ExitCode = ExitCodes.CommandlineArgumentError;

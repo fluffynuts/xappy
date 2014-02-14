@@ -29,9 +29,12 @@ namespace Xappy
                 _marshal = new TestRunnerMarshal(_trayIconAnimator.Busy, _trayIconAnimator.Rest);
                 if (!_marshal.Start())
                     Exit();
-                _trayIcon.Text = String.Format("Xappy: waiting for requests ({0}:{1})...", _marshal.Host, _marshal.Port);
-                _trayIcon.Show();
-                Application.Run();
+                else
+                {
+                    _trayIcon.Text = String.Format("Xappy: waiting for requests ({0}:{1})...", _marshal.Host, _marshal.Port);
+                    _trayIcon.Show();
+                    Application.Run();
+                }
             }
         }
 

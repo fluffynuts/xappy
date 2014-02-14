@@ -21,6 +21,7 @@ namespace XappyClient
                 return (int)opts.ExitCode;
             client.HostName = opts.Server ?? Dns.GetHostName();
             client.Port = opts.Port < 1 ? 5555 : opts.Port;
+            client.CommunicationTimeoutInSeconds = opts.Timeout < 1 ? 600 : opts.Timeout;
 
             var blob = new Base64Blob(File.ReadAllBytes(opts.XAPFile));
             var name = String.IsNullOrEmpty(opts.BuildName) ? Path.GetFileName(opts.XAPFile) : opts.BuildName;

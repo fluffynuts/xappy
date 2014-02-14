@@ -20,6 +20,19 @@ namespace GIPC
 
         public decimal MaxMessageSizeInMB { get; set; }
 
+        public int CommunicationTimeoutInSeconds
+        {
+            get
+            {
+                return _communicationTimeoutInSeconds;
+            }
+            set
+            {
+                _communicationTimeoutInSeconds = (value < 1) ? 60 : value;
+            }
+        }
+        int _communicationTimeoutInSeconds;
+
         public enum Protocols
         {
             None,
@@ -158,7 +171,8 @@ namespace GIPC
                 { 
                     Mode = SecurityMode.None
                 },
-                MaxReceivedMessageSize = GetConfiguredMaxAllowedMessageSize()
+                MaxReceivedMessageSize = GetConfiguredMaxAllowedMessageSize(),
+                SendTimeout = TimeSpan.FromSeconds(this.CommunicationTimeoutInSeconds)
             };
         }
 
