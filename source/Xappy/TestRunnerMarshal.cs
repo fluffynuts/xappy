@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.IO;
 using System.Linq;
@@ -19,6 +20,7 @@ namespace Xappy
         private Action<string> _onCompleted;
         public string Host { get; protected set; }
         public int Port { get; protected set; }
+        public int TimeoutInSeconds { get; protected set; }
 
         public TestRunnerMarshal(Action<string> onBusy, Action<string> onCompleted)
         {
@@ -28,8 +30,8 @@ namespace Xappy
 
         public bool Start()
         {
-            GetServerHostAndPort();
-            SetupGIPCServerWith(Host, Port);
+            GetGIPCServerConfigValues();
+            SetupGIPCServerWith(Host, Port, TimeoutInSeconds);
             try
             {
                 _server.Start();
@@ -45,20 +47,42 @@ namespace Xappy
             }
         }
 
-        private void SetupGIPCServerWith(string host, int port)
+        private void SetupGIPCServerWith(string host, int port, int timeout)
         {
             _server = new GIPCServer(GIPCBase.Protocols.NetTcp, "xappy")
                       {
                           HostName = host,
                           Port = port,
-                          MaxMessageSizeInMB = 25
+                          MaxMessageSizeInMB = 25,
+                          CommunicationTimeoutInSeconds = timeout
                       };
             _server.OnMessageReceived += OnServerMessageReceived;
         }
 
-        private void GetServerHostAndPort()
+        private void GetGIPCServerConfigValues()
         {
             var appSettings = ConfigurationManager.AppSettings;
+            GetServerHostAndPort(appSettings);
+            GetTimeoutValue(appSettings);
+        }
+
+        private void GetTimeoutValue(NameValueCollection appSettings)
+        {
+            TimeoutInSeconds = 600;
+            var timeout = appSettings["timeout"];
+            if (!String.IsNullOrEmpty(timeout))
+            {
+                int timeoutValue;
+                if (int.TryParse(timeout, out timeoutValue))
+                {
+                    if (timeoutValue > 1)
+                        TimeoutInSeconds = timeoutValue;
+                }
+            }
+        }
+
+        private void GetServerHostAndPort(NameValueCollection appSettings)
+        {
             var listen = appSettings["listen"] ?? String.Join(":", new[] {Dns.GetHostName(), "5555"});
             var parts = listen.Split(':');
             var host = Dns.GetHostName();
