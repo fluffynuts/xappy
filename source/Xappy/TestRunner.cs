@@ -24,9 +24,10 @@ namespace Xappy
             info.UseShellExecute = false;
             proc.StartInfo = info;
             proc.Start();
-            proc.WaitForExit();
-            return String.Join("\n", new[] { "Test run commandline: ", info.FileName + " " + info.Arguments, 
+            var result = String.Join("\n", new[] { "Test run commandline: ", info.FileName + " " + info.Arguments, 
                 proc.StandardOutput.ReadToEnd(), proc.StandardError.ReadToEnd() });
+            proc.WaitForExit();
+            return result;
         }
     }
 }
