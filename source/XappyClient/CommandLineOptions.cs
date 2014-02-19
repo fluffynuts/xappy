@@ -17,8 +17,7 @@ namespace XappyClient
             CommandlineArgumentError,
             Failure,
             ShowedHelp,
-            InstallFailed,
-            UninstallFailed
+            TestsFailed
         }
         public ExitCodes ExitCode { get; protected set; }
         [Option('h', "help", HelpText = "Show this help")]

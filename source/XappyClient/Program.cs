@@ -31,7 +31,18 @@ namespace XappyClient
             {
                 var result = client.SendMessage(String.Join("\n", new[] { name, base64String }));
                 Console.WriteLine(String.Join("\n", result));
-                return 0;
+                var exitCode = CommandLineOptions.ExitCodes.Success;
+                foreach (var line in result)
+                {
+                    var subLines = line.Split('\n');
+                    foreach (var subLine in subLines)
+                    {
+                        Console.WriteLine(subLine.Trim());
+                        if (subLine.ToLower().Trim() == "test run failed.")
+                            exitCode = CommandLineOptions.ExitCodes.TestsFailed;
+                    }
+                }
+                return (int)exitCode;
             }
             catch (Exception ex)
             {
