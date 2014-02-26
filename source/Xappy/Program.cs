@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GIPC;
+using log4net;
+using log4net.Config;
 
 namespace Xappy
 {
@@ -22,6 +24,7 @@ namespace Xappy
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            XmlConfigurator.Configure();
             using (_trayIcon = new TrayIcon(Resources.runner))
             {
                 _trayIcon.AddMenuItem("E&xit", Exit);
@@ -40,6 +43,8 @@ namespace Xappy
 
         private static void Exit()
         {
+            var logger = LogManager.GetLogger("Xappy");
+            logger.Info("Exit requested...");
             lock (_lock)
             {
                 if (_marshal != null)
@@ -48,6 +53,7 @@ namespace Xappy
                     _marshal = null;
                 }
             }
+            logger.Info("Exiting now.");
             Application.Exit();
         }
     }

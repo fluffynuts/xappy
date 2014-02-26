@@ -9,11 +9,12 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using GIPC;
+using log4net.Config;
 using TestRunner;
 
 namespace Xappy
 {
-    public class TestRunnerMarshal: IDisposable
+    public class TestRunnerMarshal: LogCapableObject, IDisposable
     {
         private static GIPCServer _server;
         private Action<string> _onBusy;
@@ -104,15 +105,18 @@ namespace Xappy
             }
             this.Host = host;
             this.Port = port;
+            LogDebug(String.Format("Listening on {0}:{1}", Host, Port));
         }
 
         public void Stop()
         {
             lock (this)
             {
+                LogDebug("Stopping GIPC server");
                 if (_server != null)
                     _server.Dispose();
                 _server = null;
+                LogDebug("GIPC server stopped");
             }
         }
 
@@ -122,24 +126,35 @@ namespace Xappy
             var parts = message.Split('\n');
             var buildName = parts[0];
             _onBusy("Starting run for: " + buildName);
+            LogInfo(String.Format("Test run request received for: {0}", buildName));
             var tempFile = Path.GetTempFileName() + ".xap";
             var base64Data = String.Join("\n", parts.Skip(1));
             var blob = new Base64Blob(base64Data);
-            File.WriteAllBytes(tempFile, blob.ToBinary());
+            var xapBytes = blob.ToBinary();
+            LogDebug(String.Format("Creating temporary XAP at: {0} ({1}k)", tempFile, (xapBytes.Length / 1024)));
+            File.WriteAllBytes(tempFile, xapBytes);
+            LogDebug(" => temporary file created");
 
             try
             {
                 var result = testRunner.ProcessBuild(tempFile);
-                _onCompleted(null);
+                _onCompleted(GetLastRunMessage());
                 return result;
             }
             finally
             {
-                try { 
-                //    File.Delete(tempFile); 
+                try {
+                    LogDebug("Removing temporary XAP file");
+                    File.Delete(tempFile);
+                    LogDebug(" => done");
                 }
                 catch { }
             }
+        }
+
+        private string GetLastRunMessage()
+        {
+            return String.Format("Listening on {0}:{1}  Last run was at: {2}", Host, Port, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         }
 
         public void Dispose()
