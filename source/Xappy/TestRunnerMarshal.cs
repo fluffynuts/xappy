@@ -141,6 +141,13 @@ namespace Xappy
                 _onCompleted(GetLastRunMessage());
                 return result;
             }
+            catch (Exception ex)
+            {
+                LogError("Error running test:");
+                LogError(ex.Message + "\n\n" + ex.StackTrace);
+                _onCompleted(GetLastFailedMessage());
+                return "Unable to run tests: " + ex.Message;
+            }
             finally
             {
                 try {
@@ -152,9 +159,18 @@ namespace Xappy
             }
         }
 
+        private string GetLastFailedMessage()
+        {
+            return GetLastMessageFor("failure");
+        }
+
+        private string GetLastMessageFor(string operation)
+        {
+            return String.Format("Listening on {0}:{1}  Last {3} was at: {2}", Host, Port, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), operation);
+        }
         private string GetLastRunMessage()
         {
-            return String.Format("Listening on {0}:{1}  Last run was at: {2}", Host, Port, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+            return GetLastMessageFor("successful run");
         }
 
         public void Dispose()

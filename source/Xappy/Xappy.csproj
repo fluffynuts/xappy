@@ -116,7 +116,7 @@
   <PropertyGroup>
     <PostBuildEvent>copy $(TargetPath) $(SolutionDir)..\bin\
 copy $(TargetDir)\*.dll $(SolutionDir)..\bin\
-copy $(TargetPath).config $(SolutionDir)..\bin\$(TargetName).exe.config</PostBuildEvent>
+copy $(TargetPath).config $(SolutionDir)..\bin\$(TargetName).exe.config.example</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

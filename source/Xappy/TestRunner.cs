@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 
 namespace Xappy
@@ -17,6 +18,10 @@ namespace Xappy
         {
             var proc = new Process();
             var info = new ProcessStartInfo();
+            if (!File.Exists(_vsTestPath))
+            {
+                throw new Exception("Unable to find the vstest binary at the configuration location: '" + _vsTestPath + "'");
+            }
             info.FileName = _vsTestPath;
             info.Arguments = parameters + " /InIsolation";
             info.RedirectStandardError = true;
