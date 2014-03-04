@@ -34,7 +34,8 @@ namespace Xappy
                     Exit();
                 else
                 {
-                    _trayIcon.Text = String.Format("Xappy: waiting for requests ({0}:{1})...", _marshal.Host, _marshal.Port);
+                    _trayIcon.TipTitle = String.Format("Xappy ({0}:{1})", _marshal.Host, _marshal.Port);
+                    _trayIcon.TipText = "Waiting for requests...";
                     _trayIcon.Show();
                     Application.Run();
                 }

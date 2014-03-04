@@ -27,8 +27,8 @@ namespace Xappy
                 if (_busy) return;
                 _busy = true;
             }
-            _lastText = _trayIcon.Text;
-            _trayIcon.Text = withText ?? "busy...";
+            _lastText = _trayIcon.TipText;
+            _trayIcon.TipText = withText ?? "busy...";
             _animationTask = new Task(() => {
                                                 while (_busy)
                                                 {
@@ -49,7 +49,7 @@ namespace Xappy
                 if (!_busy) return;
                 _busy = false;
             }
-            _trayIcon.Text = withText ?? _lastText;
+            _trayIcon.TipText = withText ?? _lastText;
             _animationTask.Wait();
             _animationTask.Dispose();
             _trayIcon.Icon = _restStateIcon;

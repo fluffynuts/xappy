@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>-p 5556 -s moo -x C:\tmp\vstest\tmp53D1.tmp.xap</StartArguments>
+    <StartArguments>-p 5556 -s moo -x "C:\code\Impro\DocuCam\bin\testbin\DocuCam.Logic.Tests_Debug_x86.xap"</StartArguments>
   </PropertyGroup>
 </Project>

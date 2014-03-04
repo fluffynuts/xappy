@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -12,6 +14,9 @@ namespace Xappy
     {
 		private NotifyIcon _notificationIcon;
         private Icon _icon;
+        private bool _showingBalloon;
+        public int BalloonTipLifeTimeInMS { get; set; }
+
         public Icon Icon
         {
             get
@@ -25,33 +30,29 @@ namespace Xappy
             }
         }
 
-        public string Text
-        {
-            get
-            {
-                lock(this)
-                {
-                    return _notificationIcon == null ? null : _notificationIcon.Text;
-                }
-            }
-            set
-            {
-                lock(this)
-                {
-                    if (_notificationIcon == null)
-                        return;
-                    var text = value == null ? "" : (value.Length >= 60) ? value.Substring(0, 60) + "..." : value;
-                    _notificationIcon.Text = text;
-                }
-            }
-        }
+        public string TipText { get; set; }
+        public string TipTitle { get; set; }
 
         public TrayIcon(Icon icon)
 		{
             this._icon = icon;
+            BalloonTipLifeTimeInMS = 2000;
             _notificationIcon = new NotifyIcon();
             _notificationIcon.ContextMenu = new ContextMenu();
+            _notificationIcon.MouseMove += ShowBalloonTipForMessage;
 		}
+
+        private void ShowBalloonTipForMessage(object sender, MouseEventArgs e)
+        {
+            if (_showingBalloon) return;
+            _showingBalloon = true;
+            _notificationIcon.ShowBalloonTip(BalloonTipLifeTimeInMS, TipTitle, TipText, ToolTipIcon.Info);
+            Task.Factory.StartNew(() =>
+                {
+                    Thread.Sleep(BalloonTipLifeTimeInMS);
+                    _showingBalloon = false;
+                });
+        }
 
 
         public void AddMenuItem(string withText, Action withCallback)

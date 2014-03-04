@@ -166,7 +166,7 @@ namespace Xappy
 
         private string GetLastMessageFor(string operation)
         {
-            return String.Format("Listening on {0}:{1}  Last {3} was at: {2}", Host, Port, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), operation);
+            return String.Format("Last {0} was at: {1}", operation, DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
         }
         private string GetLastRunMessage()
         {
