@@ -30,7 +30,6 @@ namespace XappyClient
             try
             {
                 var result = client.SendMessage(String.Join("\n", new[] { name, base64String }));
-                Console.WriteLine(String.Join("\n", result));
                 var exitCode = CommandLineOptions.ExitCodes.Success;
                 foreach (var line in result)
                 {
