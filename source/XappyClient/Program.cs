@@ -31,16 +31,9 @@ namespace XappyClient
             {
                 var result = client.SendMessage(String.Join("\n", new[] { name, base64String }));
                 var exitCode = CommandLineOptions.ExitCodes.Success;
-                foreach (var line in result)
-                {
-                    var subLines = line.Split('\n');
-                    foreach (var subLine in subLines)
-                    {
-                        Console.WriteLine(subLine.Trim());
-                        if (subLine.ToLower().Trim() == "test run failed.")
-                            exitCode = CommandLineOptions.ExitCodes.TestsFailed;
-                    }
-                }
+                var failed = new List<string>();
+                var skipped = new List<string>();
+                exitCode = GetValue(result, skipped, failed);
                 return (int)exitCode;
             }
             catch (Exception ex)
@@ -53,6 +46,88 @@ namespace XappyClient
                 }));
                 return (int)CommandLineOptions.ExitCodes.Failure;
             }
+        }
+
+        private static CommandLineOptions.ExitCodes GetValue(string[] result, List<string> skipped, List<string> failed)
+        {
+            var exitCode = CommandLineOptions.ExitCodes.Success;
+            foreach (var line in result)
+            {
+                var subLines = line.Split('\n');
+                foreach (var subLine in subLines)
+                {
+                    var trimmed = subLine.Trim();
+                    Console.WriteLine(trimmed);
+                    var firstWord = trimmed.Split(' ').First().ToLower();
+                    switch (firstWord)
+                    {
+                        case "passed":
+                            WritePassMark();
+                            break;
+                        case "skipped":
+                            WriteSkipped(skipped, trimmed);
+                            break;
+                        case "failed":
+                            WriteFailed(failed, trimmed);
+                            break;
+                        case "total":
+                            StartNewLine();
+                            ReportSkippedAndFailed(skipped, failed);
+                            Console.WriteLine(trimmed);
+                            break;
+                        default:
+                            Console.WriteLine(trimmed);
+                            break;
+                    }
+                    if (trimmed.ToLower() == "test run failed.")
+                        exitCode = CommandLineOptions.ExitCodes.TestsFailed;
+                }
+            }
+            return exitCode;
+        }
+
+        private static void StartNewLine()
+        {
+            Console.Write("\n");
+            Console.Out.Flush();
+        }
+
+        private static void ReportSkippedAndFailed(List<string> skipped, List<string> failed)
+        {
+            var hasFailed = failed.Any();
+            var hasSkipped = skipped.Any();
+            if (hasFailed || hasSkipped)
+            {
+                Console.WriteLine("Interesting results:");
+                if (hasSkipped)
+                {
+                    Console.WriteLine(String.Join("\n", skipped));
+                }
+                if (hasFailed)
+                {
+                    Console.WriteLine(String.Join("\n", failed));
+                }
+            }
+        }
+
+        private static void WriteFailed(List<string> failed, string trimmed)
+        {
+            Console.Out.Write("x");
+            Console.Out.Flush();
+            failed.Add(trimmed);
+        }
+
+        private static void WriteSkipped(List<string> skipped, string trimmed)
+        {
+            Console.Out.Write("-");
+            Console.Out.Flush();
+            skipped.Add(trimmed);
+        }
+
+        private static void WritePassMark()
+        {
+            Console.Out.Write(".");
+            Console.Out.Flush();
         }
     }
 }
