@@ -57,7 +57,6 @@ namespace XappyClient
                 foreach (var subLine in subLines)
                 {
                     var trimmed = subLine.Trim();
-                    Console.WriteLine(trimmed);
                     var firstWord = trimmed.Split(' ').First().ToLower();
                     switch (firstWord)
                     {

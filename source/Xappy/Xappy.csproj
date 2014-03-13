@@ -116,9 +116,11 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy $(TargetPath) $(SolutionDir)..\bin\
-copy $(TargetDir)\*.dll $(SolutionDir)..\bin\
-copy $(TargetPath).config $(SolutionDir)..\bin\$(TargetName).exe.config.example</PostBuildEvent>
+    <PostBuildEvent>mkdir $(SolutionDir)..\bin
+mkdir $(SolutionDir)..\bin\server
+copy $(TargetPath) $(SolutionDir)..\bin\server
+copy $(TargetDir)\*.dll $(SolutionDir)..\bin\server
+copy $(TargetPath).config $(SolutionDir)..\bin\server\$(TargetName).exe.config.example</PostBuildEvent>
   </PropertyGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
