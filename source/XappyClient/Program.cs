@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -73,6 +74,10 @@ namespace XappyClient
                             WriteFailed(failed, trimmed);
                             lastPrefix = firstWord;
                             break;
+                        case "error:":
+                            StartNewLine();
+                            Console.WriteLine(subLine);
+                            break;
                         case "total":
                             StartNewLine();
                             ReportSkippedAndFailed(skipped, failed);
@@ -98,8 +103,19 @@ namespace XappyClient
             return exitCode;
         }
 
+        private static uint _markCount;
+
+        private static void StartNewLineIfMarksAreTooLong()
+        {
+            if (_markCount > 80)
+            {
+                StartNewLine();
+            }
+        }
+
         private static void StartNewLine()
         {
+            _markCount = 0;
             Console.Write("\n");
             Console.Out.Flush();
         }
@@ -124,22 +140,27 @@ namespace XappyClient
 
         private static void WriteFailed(List<string> failed, string trimmed)
         {
-            Console.Out.Write("x");
-            Console.Out.Flush();
+            WriteMark("x");
             failed.Add(trimmed);
+        }
+
+        private static void WriteMark(string mark)
+        {
+            StartNewLineIfMarksAreTooLong();
+            _markCount++;
+            Console.Out.Write(mark);
+            Console.Out.Flush();
         }
 
         private static void WriteSkipped(List<string> skipped, string trimmed)
         {
-            Console.Out.Write("-");
-            Console.Out.Flush();
+            WriteMark("-");
             skipped.Add(trimmed);
         }
 
         private static void WritePassMark()
         {
-            Console.Out.Write(".");
-            Console.Out.Flush();
+            WriteMark(".");
         }
     }
 }
