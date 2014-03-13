@@ -54,6 +54,7 @@ namespace XappyClient
             foreach (var line in result)
             {
                 var subLines = line.Split('\n');
+                string lastPrefix = null;
                 foreach (var subLine in subLines)
                 {
                     var trimmed = subLine.Trim();
@@ -62,20 +63,32 @@ namespace XappyClient
                     {
                         case "passed":
                             WritePassMark();
+                            lastPrefix = firstWord;
                             break;
                         case "skipped":
                             WriteSkipped(skipped, trimmed);
+                            lastPrefix = firstWord;
                             break;
                         case "failed":
                             WriteFailed(failed, trimmed);
+                            lastPrefix = firstWord;
                             break;
                         case "total":
                             StartNewLine();
                             ReportSkippedAndFailed(skipped, failed);
                             Console.WriteLine(trimmed);
+                            lastPrefix = firstWord;
                             break;
                         default:
-                            Console.WriteLine(trimmed);
+                            switch (lastPrefix)
+                            {
+                                case "failed":
+                                    failed.Add("\t" + subLine);
+                                    break;
+                                default:
+                                    Console.WriteLine(subLine);
+                                    break;
+                            }
                             break;
                     }
                     if (trimmed.ToLower() == "test run failed.")
