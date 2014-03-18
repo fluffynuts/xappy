@@ -15,6 +15,8 @@ namespace Xappy
 		private NotifyIcon _notificationIcon;
         private Icon _icon;
         private bool _showingBalloon;
+        private CancellationTokenSource _iconRefreshCancellation;
+        private Task _refresherTask;
         public int BalloonTipLifeTimeInMS { get; set; }
 
         public Icon Icon
@@ -26,7 +28,6 @@ namespace Xappy
             set
             {
                 _icon = value;
-                _notificationIcon.Icon = _icon;
             }
         }
 
@@ -40,7 +41,23 @@ namespace Xappy
             _notificationIcon = new NotifyIcon();
             _notificationIcon.ContextMenu = new ContextMenu();
             _notificationIcon.MouseMove += ShowBalloonTipForMessage;
+            SetupPeriodicRefreshOfIcon();
 		}
+
+        private void SetupPeriodicRefreshOfIcon()
+        {
+            _iconRefreshCancellation = new CancellationTokenSource();
+            var token = _iconRefreshCancellation.Token;
+            _refresherTask = Task.Factory.StartNew(() =>
+                                                   {
+                                                       while (!token.IsCancellationRequested)
+                                                       {
+                                                           Thread.Sleep(33);
+                                                           if (_icon != null)
+                                                               _notificationIcon.Icon = _icon;
+                                                       }
+                                                   }, token);
+        }
 
         private void ShowBalloonTipForMessage(object sender, MouseEventArgs e)
         {
@@ -94,7 +111,6 @@ namespace Xappy
         public void Show()
 		{
 			_notificationIcon.MouseClick += onIconMouseClick;
-			_notificationIcon.Icon = _icon;
 			_notificationIcon.Visible = true;
 		}
 
@@ -102,6 +118,13 @@ namespace Xappy
 		{
             lock(this)
             {
+                if (_iconRefreshCancellation != null)
+                {
+                    _iconRefreshCancellation.Cancel();
+                    _refresherTask.Wait();
+                }
+                _iconRefreshCancellation = null;
+                _refresherTask = null;
                 if (_notificationIcon != null)
     			    _notificationIcon.Dispose();
                 _notificationIcon = null;
