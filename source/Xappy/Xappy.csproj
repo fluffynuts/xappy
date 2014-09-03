@@ -113,6 +113,10 @@
       <Project>{5AADA0A9-88FF-4F0C-AE7F-3D57F3230D78}</Project>
       <Name>TestRunner</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Xappy.Common\Xappy.Common.csproj">
+      <Project>{58BE407F-AABD-4295-B663-E4B6CD04C46D}</Project>
+      <Name>Xappy.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -4,11 +4,13 @@ using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using GIPC;
 using TestRunner;
 using System.Net;
+using Xappy.Common;
 
 namespace XappyClient
 {
@@ -23,6 +25,11 @@ namespace XappyClient
             client.HostName = opts.Server ?? Dns.GetHostName();
             client.Port = opts.Port < 1 ? 5555 : opts.Port;
             client.CommunicationTimeoutInSeconds = opts.Timeout < 1 ? 600 : opts.Timeout;
+
+            if (opts.ShowVersionInfo)
+            {
+                return ShowVersionInfoWith(client);
+            }
 
             var blob = new Base64Blob(File.ReadAllBytes(opts.XAPFile));
             var name = String.IsNullOrEmpty(opts.BuildName) ? Path.GetFileName(opts.XAPFile) : opts.BuildName;
@@ -47,6 +54,23 @@ namespace XappyClient
                 }));
                 return (int)CommandLineOptions.ExitCodes.Failure;
             }
+        }
+
+        private static int ShowVersionInfoWith(GIPCClient client)
+        {
+            var clientVersion = VersionInfo.GetVersion();
+            Console.WriteLine("Client version: " + clientVersion);
+            try
+            {
+                var result = client.SendMessage("?version");
+                var serverVersion = (result == null || result.Length == 0) ? "unknown" : result.First();
+                Console.WriteLine("Server at " + client.HostName + ":" + client.Port + " reports version: " + serverVersion);
+            }
+            catch
+            {
+                Console.WriteLine("Unable to determine the version of Xappy server at: " + client.HostName + ":" + client.Port);
+            }
+            return 0;
         }
 
         private static CommandLineOptions.ExitCodes GetValue(string[] result, List<string> skipped, List<string> failed)

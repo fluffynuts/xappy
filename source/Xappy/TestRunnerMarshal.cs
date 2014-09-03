@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using GIPC;
 using log4net.Config;
 using TestRunner;
+using Xappy.Common;
 
 namespace Xappy
 {
@@ -122,6 +123,8 @@ namespace Xappy
 
         private string OnServerMessageReceived(string message)
         {
+            if (IsVersionInfoRequest(message))
+                return VersionInfo.GetVersion();
             var testRunner = new TestRunner(ConfigurationManager.AppSettings["vstest"]);
             var parts = message.Split('\n');
             var buildName = parts[0];
@@ -157,6 +160,11 @@ namespace Xappy
                 }
                 catch { }
             }
+        }
+
+        private bool IsVersionInfoRequest(string message)
+        {
+            return message == "?version";
         }
 
         private string GetLastFailedMessage()

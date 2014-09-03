@@ -20,3 +20,5 @@ bin/
 *.suo
 source/Xappy.Tests/obj/
 source/packages/NUnit.2.6.3/
+source/Xappy.Common/obj/
+*.user

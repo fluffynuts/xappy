@@ -38,6 +38,9 @@ namespace XappyClient
         [Option('t', "timeout", HelpText = "Communications timeout in seconds. Defaults to 600.", DefaultValue = 600)]
         public int Timeout { get; set; }
 
+        [Option('v', "version", HelpText = "Show version info")]
+        public bool ShowVersionInfo { get; set; }
+
         public CommandLineOptions(string[] args, string helpHeading, string copyRightInformation = null)
         {
             this.ExitCode = ExitCodes.CommandlineArgumentError;
@@ -52,7 +55,10 @@ namespace XappyClient
             }
             else
             {
-                ShowUsage(helpHeading, copyRightInformation);
+                if (ShowVersionInfo)
+                    this.ExitCode = ExitCodes.Success;
+                else
+                    ShowUsage(helpHeading, copyRightInformation);
             }
         }
 
